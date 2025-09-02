@@ -1,0 +1,26 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/generate-rpp",
+      "destination": "/api/index.js"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/generate-rpp",
+      "dest": "/api/generate-rpp",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "src": "/(.*)",
+      "status": 404,
+      "continue": true
+    },
+    {
+      "src": "/smartrpp.html",
+      "dest": "/smartrpp.html"
+    }
+  ]
+}
