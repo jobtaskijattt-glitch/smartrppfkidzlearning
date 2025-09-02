@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART RPP Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --dark-color: #1a2a47;
+            --light-bg-color: #f0f5f9;
+            --card-bg-color: #ffffff;
+            --border-color: #d8e3e9;
+            --text-color: #333;
+            --box-shadow-light: 0 4px 15px rgba(0, 0, 0, 0.08);
+            --box-shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 2.5rem 1rem;
+            text-align: center;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+        .menu-toggle {
+            position: absolute;
+            top: 2.5rem;
+            left: 2rem;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            z-index: 101;
+        }
+        .menu-toggle:hover {
+            color: var(--primary-color);
+        }
+        .menu-container {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 250px;
+            height: 100%;
+            background-color: var(--dark-color);
+            padding-top: 5rem;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+            transition: left 0.4s ease-in-out;
+            z-index: 100;
+        }
+        .menu-container.open {
+            left: 0;
+        }
+        .menu-container ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .menu-container ul li a {
+            display: block;
+            padding: 1.5rem 2rem;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: background-color 0.3s ease;
+        }
+        .menu-container ul li a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUP 1s forwards cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        header p {
+            margin: 0.5rem 0 0;
+            font-size: 1.1rem;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+        @keyframes fadeInUP {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        main {
+            flex-grow: 1;
+            display: none; /* Initially hidden until tutorial is closed */
+            flex-direction: column;
+            align-items: center;
+            padding: 2.5rem 1rem;
+        }
+        .form-container, .result-container {
+            background-color: var(--card-bg-color);
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: var(--box-shadow-medium);
+            width: 100%;
+            max-width: 850px;
+            margin-bottom: 2rem;
+            box-sizing: border-box;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 1.8rem;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.6rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 1.05rem;
+        }
+        .input-with-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            color: #999;
+            transition: color 0.3s ease;
+        }
+        .input-group:focus-within .input-with-icon i {
+            color: var(--primary-color);
+        }
+        .input-with-icon input, .input-with-icon select {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .input-with-icon input:focus, .input-with-icon select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        .input-group textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            resize: vertical;
+        }
+        .input-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        .input-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 0.6rem;
+            padding: 0;
+        }
+        .input-group .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem 1rem;
+            padding-left: 0;
+        }
+        .input-group .checkbox-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0;
+            font-weight: 400;
+            color: #555;
+            font-size: 1rem;
+        }
+        .input-with-icon select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%233498db%22%20d%3D%22M287%20163.6l-98.3-98.3c-4.7-4.7-12.3-4.7-17%200l-98.3%2098.3c-4.7%204.7-4.7%2012.3%200%2017l8.5%208.5c4.7%204.7%2012.3%204.7%2017%200l72.8-72.8%2072.8%2072.8c4.7%204.7%2012.3%204.7%2017%200l8.5-8.5c4.7-4.7%204.7-12.3%200-17z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 15px top 50%, 0 0;
+            background-size: 12px auto, 100%;
+        }
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .generate-button, .get-prompt-button, .print-button, .get-pdf-button {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: var(--box-shadow-light);
+        }
+        .generate-button {
+            background-color: var(--primary-color);
+        }
+        .generate-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
+        }
+        .get-prompt-button {
+            background-color: #f39c12;
+        }
+        .get-prompt-button:hover {
+            background-color: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(243, 156, 18, 0.3);
+        }
+        .print-button {
+            background-color: var(--secondary-color);
+        }
+        .print-button:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(46, 204, 113, 0.3);
+        }
+        .get-pdf-button {
+            background-color: #b92980;
+        }
+        .get-pdf-button:hover {
+            background-color: #a0206e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(185, 41, 128, 0.3);
+        }
+        .result-container h2 {
+            text-align: center;
+            color: var(--dark-color);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+        #rpp-content {
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            border-radius: 10px;
+            background-color: #fcfdff;
+        }
+        #rpp-content h3 {
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.8rem;
+            margin-top: 2.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        #rpp-content h3:first-of-type {
+            margin-top: 0;
+        }
+        #rpp-content p, #rpp-content ul, #rpp-content table {
+            margin-top: 0;
+            margin-bottom: 1.2rem;
+        }
+        #rpp-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        #rpp-content th, #rpp-content td {
+            border: 1px solid var(--border-color);
+            padding: 14px;
+            text-align: left;
+        }
+        #rpp-content th {
+            background-color: #eef4f9;
+            font-weight: 600;
+        }
+        #rpp-content tr:nth-child(even) {
+            background-color: #f8fbfd;
+        }
+        .label-cell {
+            width: 200px;
+            font-weight: 600;
+            color: #444;
+        }
+        .value-cell {
+            font-weight: normal;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(26, 42, 71, 0.75), rgba(0, 0, 0, 0));
+            margin: 3rem 0;
+        }
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #777;
+            background-color: #e9eef2;
+            margin-top: auto;
+            font-size: 0.9rem;
+        }
+        .loading-popup {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            transition: opacity 0.3s ease;
+        }
+        .spinner {
+            border: 6px solid rgba(255, 255, 255, 0.3);
+            border-top: 6px solid var(--primary-color);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Modal Style */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1001; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.5); 
+            padding-top: 100px;
+            animation: fadeIn 0.3s forwards;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+            animation: popIn 0.3s forwards;
+        }
+        #prompt-modal .modal-content {
+            max-width: 800px;
+        }
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #555;
+            text-decoration: none;
+        }
+        .modal-content h3 {
+            color: var(--dark-color);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        .modal-content p {
+            font-size: 1.1rem;
+            color: #555;
+            line-height: 1.8;
+            text-align: left;
+        }
+        .modal-content p strong {
+            color: var(--primary-color);
+        }
+        .modal-content ol {
+            text-align: left;
+            padding-left: 20px;
+            font-size: 1rem;
+            color: #555;
+        }
+        .modal-content ol li {
+            margin-bottom: 10px;
+        }
+        .modal-content ol li strong {
+            color: var(--dark-color);
+        }
+        .donasi-section {
+            background-color: var(--card-bg-color);
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: var(--box-shadow-medium);
+            width: 100%;
+            max-width: 850px;
+            margin-top: 2rem;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .donasi-section h3 {
+            color: var(--dark-color);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .donasi-section p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 1.5rem;
+        }
+        .donasi-section img {
+            max-width: 250px;
+            height: auto;
+            border: 5px solid var(--primary-color);
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+        /* Tutorial Modal Specifics */
+        #tutorial-modal {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            animation: fadeIn 0.5s ease-in-out;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #tutorial-content {
+            background-color: var(--card-bg-color);
+            padding: 3rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            transform: scale(0.95);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+        #tutorial-content h2 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+        }
+        #tutorial-content p {
+            text-align: center;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 2rem;
+        }
+        .tutorial-step {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideIn 0.6s forwards;
+        }
+        .tutorial-step:nth-child(1) { animation-delay: 0.3s; }
+        .tutorial-step:nth-child(2) { animation-delay: 0.6s; }
+        .tutorial-step:nth-child(3) { animation-delay: 0.9s; }
+        .tutorial-step:nth-child(4) { animation-delay: 1.2s; }
+        .tutorial-step:nth-child(5) { animation-delay: 1.5s; }
+        .tutorial-step .icon {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            min-width: 50px;
+            text-align: center;
+        }
+        .tutorial-step .text {
+            text-align: left;
+            color: #444;
+        }
+        #close-tutorial-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            margin-top: 2rem;
+            animation: pulse 1.5s infinite;
+        }
+        #close-tutorial-btn:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+            animation-play-state: paused;
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes slideIn {
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        @media (max-width: 768px) {
+            .form-container, .result-container, .donasi-section {
+                padding: 2rem;
+            }
+            .menu-toggle {
+                left: 1rem;
+                top: 2rem;
+            }
+            header h1 {
+                font-size: 2rem;
+            }
+            #tutorial-content {
+                padding: 2rem;
+            }
+        }
+        #prompt-output {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        #copy-prompt-button {
+            background-color: #1abc9c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #copy-prompt-button:hover {
+            background-color: #16a085;
+        }
+        @media print {
+            @page {
+                size: A4;
+                margin: 2cm 2.5cm;
+            }
+            body { 
+                background-color: white;
+                font-family: 'Times New Roman', serif;
+                font-size: 12pt;
+                line-height: 1.5;
+            }
+            header, .form-container, footer, .button-group, .menu-container, .donasi-section, .modal, .get-prompt-button { 
+                display: none; 
+            }
+            .result-container {
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+                width: 100%;
+                display: block !important;
+            }
+            #rpp-content {
+                border: none;
+                padding: 0;
+                background-color: transparent;
+            }
+            #rpp-content h2, #rpp-content h3 {
+                color: #000;
+                border-bottom: 1px solid #000;
+                padding-bottom: 0.5rem;
+                margin-top: 1.5rem;
+                font-size: 1.5em;
+            }
+            #rpp-content h2 {
+                font-size: 2em;
+                text-align: center;
+                border-bottom: 2px solid #000;
+                margin-bottom: 1rem;
+            }
+            #rpp-content h3:first-of-type {
+                margin-top: 0;
+            }
+            #rpp-content p, #rpp-content ul, #rpp-content table {
+                margin-top: 0.5rem;
+                margin-bottom: 1rem;
+            }
+            #rpp-content table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            #rpp-content th, #rpp-content td {
+                border: 1px solid #000;
+                padding: 8px;
+            }
+            #rpp-content th {
+                background-color: #f2f2f2;
+                font-weight: bold;
+            }
+            .label-cell {
+                width: 150px;
+                font-weight: bold;
+            }
+            hr {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="tutorial-modal" class="modal">
+        <div id="tutorial-content" class="modal-content">
+            <h2>Selamat Datang di SMART RPP Generator!</h2>
+            <p>Ikuti panduan ini untuk membuat, mencetak, dan berbagi rencana pembelajaran Anda.</p>
+            <div class="tutorial-step">
+                <div class="icon"><i class="fas fa-keyboard"></i></div>
+                <div class="text">
+                    <strong>Langkah 1: Isi Data Dasar</strong>
+                    <p>Masukkan informasi dasar seperti nama guru, sekolah, dan materi pembelajaran Anda pada formulir yang tersedia.</p>
+                </div>
+            </div>
+            <div class="tutorial-step">
+                <div class="icon"><i class="fas fa-magic"></i></div>
+                <div class="text">
+                    <strong>Langkah 2: Generate Perencanaan</strong>
+                    <p>Klik tombol <strong>"Generate Perencanaan"</strong> dan biarkan generator ini merangkum RPP untuk Anda secara otomatis.</p>
+                </div>
+            </div>
+            <div class="tutorial-step">
+                <div class="icon"><i class="fas fa-print"></i></div>
+                <div class="text">
+                    <strong>Langkah 3: Cetak atau Simpan</strong>
+                    <p>RPP siap digunakan! Klik <strong>"Cetak"</strong> untuk mencetak dokumen atau <strong>"Dapatkan PDF"</strong> untuk menyimpannya.</p>
+                </div>
+            </div>
+            <div class="tutorial-step">
+                <div class="icon"><i class="fas fa-bars"></i></div>
+                <div class="text">
+                    <strong>Langkah 4: Buat Lagi</strong>
+                    <p>Untuk membuat RPP baru, buka menu di pojok kiri atas dan pilih <strong>"Buat Lagi"</strong> untuk mengosongkan formulir.</p>
+                </div>
+            </div>
+            <div class="tutorial-step">
+                <div class="icon"><i class="fas fa-heart"></i></div>
+                <div class="text">
+                    <strong>Langkah 5: Donasi</strong>
+                    <p>Dukung kami untuk terus mengembangkan alat ini dengan berdonasi melalui opsi <strong>"Donasi"</strong> di menu.</p>
+                </div>
+            </div>
+            <button id="close-tutorial-btn">Mulai Sekarang</button>
+        </div>
+    </div>
+    <header>
+        <div class="menu-toggle" id="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <h1>SMART RPP Generator</h1>
+        <p>Hasilkan dokumen perencanaan pembelajaran yang komprehensif dan elegan.</p>
+    </header>
+    <div class="menu-container" id="menu-container">
+        <ul>
+            <li><a href="#" onclick="resetForm(); return false;">Buat Lagi</a></li>
+            <li><a href="#" onclick="hideOutputAndShowForm(); return false;">Kembali ke Beranda</a></li>
+            <li><a href="#" onclick="showDonasiSection(); return false;">Donasi</a></li>
+        </ul>
+    </div>
+    <main>
+        <section class="form-container" id="form-container">
+            <form id="rpp-form">
+                <h3>Isian Data Guru & Pembelajaran</h3>
+                <div class="input-group">
+                    <label for="namaGuru">Nama Guru:</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="namaGuru" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="sekolah">Nama Sekolah:</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-school"></i>
+                        <input type="text" id="sekolah" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="jenjang">Jenjang/Kelas:</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                        <select id="jenjang" required>
+                            <option value="">Pilih Jenjang/Kelas</option>
+                            <option value="SD">SD (Fase A/B/C)</option>
+                            <option value="SMP">SMP (Fase D)</option>
+                            <option value="SMA">SMA (Fase E/F)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="materi">Materi Pokok/Topik:</label>
+                    <textarea id="materi" rows="2" placeholder="Contoh: Ekosistem Hutan Hujan" required></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="mataPelajaran">Mata Pelajaran:</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-pencil-ruler"></i>
+                        <input type="text" id="mataPelajaran" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="pertemuan">Pertemuan Ke-:</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                        <input type="text" id="pertemuan" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="alokasiWaktu">Alokasi Waktu:</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-clock"></i>
+                        <input type="text" id="alokasiWaktu" placeholder="Contoh: 2 x 45 menit" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="modelPembelajaran">Model Pembelajaran:</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-puzzle-piece"></i>
+                        <select id="modelPembelajaran" required>
+                            <option value="">Pilih Model Pembelajaran</option>
+                            <option value="Project-Based Learning (PjBL)">Project-Based Learning (PjBL)</option>
+                            <option value="Problem-Based Learning (PBL)">Problem-Based Learning (PBL)</option>
+                            <option value="Inquiry Learning">Inquiry Learning</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-user-friends"></i> Dimensi Profil Lulusan:</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="dpl" value="Keimanan dan Ketakwaan terhadap Tuhan YME, dan Berakhlak Mulia"> Keimanan & Ketakwaan</label>
+                        <label><input type="checkbox" name="dpl" value="Kewargaan"> Kewargaan</label>
+                        <label><input type="checkbox" name="dpl" value="Penalaran Kritis"> Penalaran Kritis</label>
+                        <label><input type="checkbox" name="dpl" value="Kreativitas"> Kreativitas</label>
+                        <label><input type="checkbox" name="dpl" value="Kolaborasi"> Kolaborasi</label>
+                        <label><input type="checkbox" name="dpl" value="Kemandirian"> Kemandirian</label>
+                        <label><input type="checkbox" name="dpl" value="Kesehatan"> Kesehatan (Fisik dan Mental)</label>
+                        <label><input type="checkbox" name="dpl" value="Komunikasi"> Komunikasi</label>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="generate-button">Generate Perencanaan</button>
+                    <button type="button" onclick="showPromptModal();" class="get-prompt-button">Dapatkan Prompt AI</button>
+                </div>
+            </form>
+        </section>
+        <section class="result-container" id="rpp-output" style="display: none;">
+            <h2>Rencana Pembelajaran Mendalam</h2>
+            <div id="rpp-content"></div>
+            <div class="button-group">
+                <button onclick="window.print()" class="print-button">Cetak Perencanaan Pembelajaran</button>
+                <button onclick="showSaveInstructions()" class="get-pdf-button">Dapatkan PDF</button>
+            </div>
+        </section>
+        <section class="donasi-section" id="donasi-section" style="display: none;">
+            <h3>Dukung FKIDZ Learning!</h3>
+            <p>Bantu kami untuk terus mengembangkan alat-alat pembelajaran inovatif seperti ini. Donasi Anda sangat berarti!</p>
+            <img src="https://uploads.onecompiler.io/43tpmb7wa/43v5t6zza/download.png" alt="QR Code Donasi FKIDZ Learning">
+            <p>Scan QR code di atas menggunakan aplikasi pembayaran favorit Anda untuk berdonasi. Terima kasih atas dukungan Anda!</p>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 FKIDZ Learning</p>
+    </footer>
+    <div class="loading-popup" id="loadingPopup">
+        <div class="spinner"></div>
+        <span>Mempersiapkan Perencanaan Pembelajaran...</span>
+    </div>
+    
+    <div id="pdf-instructions-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('pdf-instructions-modal')">&times;</span>
+            <h3>Cara Menyimpan sebagai PDF</h3>
+            <p>Untuk memastikan kualitas hasil terbaik, silakan ikuti langkah-langkah berikut:</p>
+            <ol>
+                <li>Klik tombol <strong>"Cetak Perencanaan Pembelajaran"</strong> di bawah ini.</li>
+                <li>Pada dialog cetak yang muncul, ubah <strong>Tujuan (Destination)</strong> menjadi <strong>"Simpan sebagai PDF (Save as PDF)"</strong>.</li>
+                <li>Klik <strong>"Simpan (Save)"</strong> untuk mengunduh dokumen.</li>
+            </ol>
+            <button onclick="closeModal('pdf-instructions-modal')" class="print-button" style="margin-top: 20px;">Tutup</button>
+        </div>
+    </div>
+    
+    <div id="prompt-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('prompt-modal')">&times;</span>
+            <h3>Prompt untuk AI</h3>
+            <p>Salin teks di bawah ini dan tempelkan ke model AI (seperti Groq, Gemini, atau ChatGPT) untuk mendapatkan RPP yang lebih kaya.</p>
+            <div id="prompt-output"></div>
+            <button id="copy-prompt-button">Salin Prompt</button>
+            <button onclick="closeModal('prompt-modal')" class="print-button" style="margin-top: 20px;">Tutup</button>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tutorialModal = document.getElementById('tutorial-modal');
+            const mainContent = document.querySelector('main');
+            
+            const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
+            if (!hasSeenTutorial) {
+                tutorialModal.style.display = 'flex';
+            } else {
+                tutorialModal.style.display = 'none';
+                mainContent.style.display = 'flex';
+            }
+
+            document.getElementById('close-tutorial-btn').addEventListener('click', function() {
+                tutorialModal.style.display = 'none';
+                mainContent.style.display = 'flex';
+                localStorage.setItem('hasSeenTutorial', 'true');
+            });
+        });
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            document.getElementById('menu-container').classList.toggle('open');
+        });
+        function showSaveInstructions() {
+            document.getElementById('pdf-instructions-modal').style.display = 'block';
+        }
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+        function resetForm() {
+            document.getElementById('rpp-form').reset();
+            hideOutputAndShowForm();
+            document.getElementById('menu-container').classList.remove('open');
+        }
+        function hideOutputAndShowForm() {
+            document.getElementById('rpp-output').style.display = 'none';
+            document.getElementById('donasi-section').style.display = 'none';
+            document.getElementById('form-container').style.display = 'block';
+            document.getElementById('menu-container').classList.remove('open');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function showDonasiSection() {
+            document.getElementById('form-container').style.display = 'none';
+            document.getElementById('rpp-output').style.display = 'none';
+            document.getElementById('donasi-section').style.display = 'block';
+            document.getElementById('menu-container').classList.remove('open');
+            document.getElementById('donasi-section').scrollIntoView({ behavior: 'smooth' });
+        }
+        function showPromptModal() {
+            const namaGuru = document.getElementById('namaGuru').value;
+            const sekolah = document.getElementById('sekolah').value;
+            const jenjang = document.getElementById('jenjang').value;
+            const materi = document.getElementById('materi').value;
+            const mataPelajaran = document.getElementById('mataPelajaran').value;
+            const pertemuan = document.getElementById('pertemuan').value;
+            const alokasiWaktu = document.getElementById('alokasiWaktu').value;
+            const modelPembelajaran = document.getElementById('modelPembelajaran').value;
+            const selectedDPL = Array.from(document.querySelectorAll('input[name="dpl"]:checked')).map(checkbox => checkbox.value);
+            
+            const prompt = `
+                Instruksi: Bertindak sebagai ahli pendidikan yang sedang menyusun Rencana Pelaksanaan Pembelajaran (RPP) yang komprehensif dan inovatif. Gunakan semua informasi di bawah ini untuk menghasilkan konten RPP yang terperinci dan siap digunakan.
+
+                ---
+                ## **Informasi Umum**
+                - **Nama Guru:** ${namaGuru}
+                - **Nama Sekolah:** ${sekolah}
+                - **Jenjang/Kelas:** ${jenjang}
+                - **Mata Pelajaran:** ${mataPelajaran}
+                - **Materi Pokok/Topik:** ${materi}
+                - **Pertemuan Ke-:** ${pertemuan}
+                - **Alokasi Waktu:** ${alokasiWaktu}
+                - **Model Pembelajaran:** ${modelPembelajaran}
+                - **Dimensi Profil Lulusan:** ${selectedDPL.length > 0 ? selectedDPL.join(', ') : 'Tidak ada dimensi yang dipilih.'}
+
+                ## **Tugas Anda**
+                Buatlah konten untuk setiap bagian RPP berikut, pastikan isinya kaya, relevan, dan detail:
+                1.  **Capaian Pembelajaran:** Jelaskan dengan rinci apa yang diharapkan peserta didik kuasai setelah pembelajaran ini.
+                2.  **Lintas Disiplin Ilmu:** Jelaskan secara spesifik bagaimana materi ini dapat dihubungkan dengan mata pelajaran lain. Berikan contoh yang konkret.
+                3.  **Tujuan Pembelajaran:** Tuliskan 3-5 poin tujuan pembelajaran yang jelas, terukur, dan berorientasi pada hasil siswa.
+                4.  **Langkah-Langkah Pembelajaran:** Susun alur pembelajaran yang sangat rinci (dari Pendahuluan, Inti, hingga Penutup) dengan deskripsi kegiatan yang aktif dan kreatif.
+                5.  **Praktik Pedagogis:** Deskripsikan peran guru dan siswa secara mendalam dalam penerapan model pembelajaran yang dipilih (${modelPembelajaran}).
+                6.  **Kemitraan Pembelajaran:** Berikan ide-ide kolaborasi dengan pihak eksternal (misalnya narasumber, komunitas, atau orang tua) untuk memperkaya pembelajaran.
+                7.  **Lingkungan Pembelajaran:** Jelaskan pengaturan ruang kelas, sumber daya, dan suasana yang mendukung pembelajaran.
+                8.  **Pemanfaatan Digital:** Sebutkan beberapa alat atau platform digital yang bisa digunakan untuk menunjang kegiatan pembelajaran ini.
+
+                Pastikan setiap bagian terperinci, mudah dipahami, dan menginspirasi guru untuk menciptakan pengalaman belajar yang menarik.
+            `;
+            
+            document.getElementById('prompt-output').textContent = prompt.trim();
+            document.getElementById('prompt-modal').style.display = 'block';
+        }
+        document.getElementById('copy-prompt-button').addEventListener('click', function() {
+            const promptText = document.getElementById('prompt-output').textContent;
+            navigator.clipboard.writeText(promptText).then(() => {
+                alert('Prompt berhasil disalin!');
+            }).catch(err => {
+                console.error('Gagal menyalin prompt: ', err);
+            });
+        });
+
+        document.getElementById('rpp-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formContainer = document.getElementById('form-container');
+            const rppOutput = document.getElementById('rpp-output');
+            const donasiSection = document.getElementById('donasi-section');
+            const loadingPopup = document.getElementById('loadingPopup');
+
+            formContainer.style.display = 'none';
+            donasiSection.style.display = 'none';
+            rppOutput.style.display = 'block';
+            loadingPopup.style.display = 'flex';
+
+            const namaGuru = document.getElementById('namaGuru').value;
+            const sekolah = document.getElementById('sekolah').value;
+            const jenjang = document.getElementById('jenjang').value;
+            const materi = document.getElementById('materi').value;
+            const mataPelajaran = document.getElementById('mataPelajaran').value;
+            const pertemuan = document.getElementById('pertemuan').value;
+            const alokasiWaktu = document.getElementById('alokasiWaktu').value;
+            const modelPembelajaran = document.getElementById('modelPembelajaran').value;
+            const selectedDPL = Array.from(document.querySelectorAll('input[name="dpl"]:checked')).map(checkbox => checkbox.value);
+            
+            const prompt = `
+            Anda adalah asisten AI yang sangat ahli dalam menyusun Rencana Pembelajaran (RPP) Kurikulum Merdeka di Indonesia. Tugas Anda adalah membuat RPP yang detail, terstruktur, dan elegan dalam format HTML, bukan Markdown. Output harus berupa kode HTML penuh yang langsung dapat dirender.
+            
+            Gunakan data berikut untuk menyusun RPP:
+            1.  Nama Guru: ${namaGuru}
+            2.  Nama Sekolah: ${sekolah}
+            3.  Jenjang/Kelas: ${jenjang}
+            4.  Materi Pokok/Topik: ${materi}
+            5.  Mata Pelajaran: ${mataPelajaran}
+            6.  Pertemuan ke-: ${pertemuan}
+            7.  Alokasi Waktu: ${alokasiWaktu}
+            8.  Model Pembelajaran: ${modelPembelajaran}
+            9.  Dimensi Profil Lulusan: ${selectedDPL.length > 0 ? selectedDPL.join(', ') : 'Tidak ada dimensi yang dipilih'}
+
+            Instruksi Khusus:
+            -   Buat struktur RPP yang mencakup semua bagian penting: Informasi Umum, Dimensi Profil Lulusan, Komponen Inti (termasuk Capaian Pembelajaran, Lintas Disiplin Ilmu, Tujuan Pembelajaran, Praktik Pedagogis, Lingkungan Pembelajaran, Kemitraan Pembelajaran, Pemanfaatan Digital), Langkah-Langkah Pembelajaran, dan Asesmen.
+            -   Sajikan data input dalam tabel HTML di bagian "Informasi Umum".
+            -   Gunakan tag \`<h3>\` untuk judul bagian dan tag \`<b>\` untuk poin-poin penting.
+            -   Untuk "Langkah-Langkah Pembelajaran", gunakan struktur list bersarang (\`<ul>\` dan \`<li>\`). Pisahkan langkah-langkah utama (Pendahuluan, Inti, Penutup) dan sub-langkah di dalamnya.
+            -   Untuk "Asesmen", buatlah sebuah tabel penilaian yang detail dan terstruktur dengan kolom "Aspek Penilaian", "Deskripsi Asesmen", dan "Skor".
+            -   Buat konten yang informatif dan relevan berdasarkan data yang diberikan. Jangan memberikan respons yang bersifat umum atau template.
+            -   Output harus berupa **kode HTML penuh** yang dimulai dari \`<h3>\` pertama, tanpa \`<html>\`, \`<head>\`, \`<body>\`, atau tag lainnya.
+            -   Jika ada dimensi profil lulusan yang tidak dipilih, nyatakan dengan jelas.
+            
+            Pastikan output Anda hanya berisi kode HTML yang valid dan siap tempel, tanpa teks tambahan di luar kode. Ini sangat penting.
+            `;
+
+            try {
+                // Perbaikan: Panggil server Node.js lokal Anda
+                const response = await fetch('https://smartrppfkidzlearning.vercel.app/api/generate-rpp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ prompt })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                const rppContent = data.choices[0]?.message?.content || "Terjadi kesalahan. Pastikan server berjalan dan kunci API valid.";
+                
+                loadingPopup.style.display = 'none';
+                document.getElementById('rpp-content').innerHTML = rppContent;
+                document.getElementById('rpp-output').scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                loadingPopup.style.display = 'none';
+                document.getElementById('rpp-content').innerHTML = `
+                    <div class="error-message">
+                        <h3>Oops, Terjadi Kesalahan!</h3>
+                        <p>Gagal menghubungi server atau API. Pastikan server Node.js Anda berjalan dengan benar dan terhubung ke internet.</p>
+                        <p>Detail Error: ${error.message}</p>
+                    </div>
+                `;
+                document.getElementById('rpp-output').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>
+
